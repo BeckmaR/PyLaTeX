@@ -1,0 +1,4 @@
+[submodule "latest"]
+	path = latest
+	url = ../pylatex.git
+	branch = compiled-docs
