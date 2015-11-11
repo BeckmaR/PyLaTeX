@@ -16,7 +16,7 @@ import matplotlib.pyplot as pyplot
 
 from pylatex import Document, Section, Math, Tabular, Figure, SubFigure, \
     Package, TikZ, Axis, Plot, Itemize, Enumerate, Description, MultiColumn, \
-    MultiRow, Command, Matrix, VectorName, Quantity
+    MultiRow, Command, Matrix, VectorName, Quantity, TableRowSizeError
 from pylatex.utils import escape_latex, fix_filename, dumps_list, bold, \
     italic, verbatim
 
@@ -66,12 +66,15 @@ def test_table():
 
     t.add_hline(start=None, end=None)
 
-    t.add_row(cells=(1, 2), escape=False)
+    t.add_row(cells=(1, 2), escape=False, strict=True)
 
     # MultiColumn/MultiRow.
-    t.add_row((MultiColumn(size=2, align='|c|', data='MultiColumn'),))
+    t.add_row((MultiColumn(size=2, align='|c|', data='MultiColumn'),),
+              strict=True)
 
-    t.add_row((MultiRow(size=2, width='*', data='MultiRow'),))
+    # One multiRow-cell in that table would not be proper LaTeX,
+    # so strict is set to False
+    t.add_row((MultiRow(size=2, width='*', data='MultiRow'),), strict=False)
 
     repr(t)
 
@@ -169,3 +172,11 @@ def test_utils():
     italic(s='')
 
     verbatim(s='', delimiter='|')
+
+
+def test_errors():
+    # Errors
+    try:
+        raise TableRowSizeError("Test")
+    except TableRowSizeError:
+        pass
