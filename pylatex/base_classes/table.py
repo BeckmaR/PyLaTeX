@@ -102,7 +102,7 @@ class TabularBase(Environment):
         mapper: callable
             A function that should be called on all entries of the list after
             converting them to a string, for instance bold
-        strict: Bool
+        strict: bool
             Check for correct count of cells in row or not.
         """
 
@@ -118,19 +118,19 @@ class TabularBase(Environment):
         # Count cell contents
         cell_count = 0
 
-        # Import here to avoid circular import
-        from ..table import MultiColumn
-
         for c in cells:
-            if isinstance(c, MultiColumn):
-                cell_count += c.size
-            else:
+            try:
+                if c.latex_name == "multicolumn":
+                    cell_count += c.size
+                else:
+                    cell_count += 1
+            except AttributeError:
                 cell_count += 1
 
         if (strict and cell_count == self.width) or not strict:
             self.append(dumps_list(cells, escape=escape, token='&',
                                    mapper=mapper) + NoEscape(r'\\'))
         else:
-            msg = "Number of cells added to table ({}) \
-            did not match table width ({})".format(cell_count, self.width)
+            msg = "Number of cells added to table ({}) " \
+                "did not match table width ({})".format(cell_count, self.width)
             raise TableRowSizeError(msg)
